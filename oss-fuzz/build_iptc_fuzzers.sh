@@ -11,29 +11,59 @@ FINDINGS_DIR="./iptc_findings"
 mkdir -p "$CORPUS_DIR"
 mkdir -p "$FINDINGS_DIR"
 
+# Get ImageMagick include paths
+MAGICK_INCLUDE_PATH=$(pkg-config --cflags-only-I MagickWand || echo "-I/usr/local/include/ImageMagick -I/usr/include/ImageMagick")
+MAGICK_LIB_PATH=$(pkg-config --libs-only-L MagickWand || echo "-L/usr/local/lib -L/usr/lib")
+MAGICK_LIBS=$(pkg-config --libs MagickWand || echo "-lMagickWand-7.Q16HDRI -lMagickCore-7.Q16HDRI")
+
+# If pkg-config fails, try to find the headers manually
+if [[ "$MAGICK_INCLUDE_PATH" != *"-I"* ]]; then
+    echo "pkg-config failed to find ImageMagick headers, trying common locations..."
+    
+    # Check common locations for ImageMagick headers
+    for dir in \
+        "/usr/include/ImageMagick" \
+        "/usr/local/include/ImageMagick" \
+        "/opt/homebrew/include/ImageMagick" \
+        "/usr/include/ImageMagick-7" \
+        "/usr/local/include/ImageMagick-7" \
+        "/opt/homebrew/include/ImageMagick-7" \
+        "../" \
+        "../../" \
+        "../../../"
+    do
+        if [ -d "$dir" ]; then
+            MAGICK_INCLUDE_PATH="-I$dir"
+            echo "Found ImageMagick headers at $dir"
+            break
+        fi
+    done
+fi
+
+echo "Using ImageMagick include path: $MAGICK_INCLUDE_PATH"
+echo "Using ImageMagick lib path: $MAGICK_LIB_PATH"
+echo "Using ImageMagick libs: $MAGICK_LIBS"
+
 # Build the fuzzers
 echo "Building IPTC profile fuzzers..."
 
 # Basic fuzzer
-clang++ -g -O1 -fsanitize=fuzzer,address,undefined -I.. \
+clang++ -g -O1 -fsanitize=fuzzer,address,undefined $MAGICK_INCLUDE_PATH \
     iptc_profile_fuzzer.cc \
     -o iptc_profile_fuzzer \
-    -L../MagickWand/.libs -L../MagickCore/.libs \
-    -lMagickWand -lMagickCore -lz -lm -lpthread
+    $MAGICK_LIB_PATH $MAGICK_LIBS -lz -lm -lpthread
 
 # Advanced fuzzer
-clang++ -g -O1 -fsanitize=fuzzer,address,undefined -I.. \
+clang++ -g -O1 -fsanitize=fuzzer,address,undefined $MAGICK_INCLUDE_PATH \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_profile_advanced_fuzzer \
-    -L../MagickWand/.libs -L../MagickCore/.libs \
-    -lMagickWand -lMagickCore -lz -lm -lpthread
+    $MAGICK_LIB_PATH $MAGICK_LIBS -lz -lm -lpthread
 
 # Build the corpus generator
-clang++ -g -O1 -DBUILD_MAIN -I.. \
+clang++ -g -O1 -DBUILD_MAIN $MAGICK_INCLUDE_PATH \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_corpus_generator \
-    -L../MagickWand/.libs -L../MagickCore/.libs \
-    -lMagickWand -lMagickCore -lz -lm -lpthread
+    $MAGICK_LIB_PATH $MAGICK_LIBS -lz -lm -lpthread
 
 echo "Generating initial corpus..."
 ./iptc_corpus_generator "$CORPUS_DIR"
