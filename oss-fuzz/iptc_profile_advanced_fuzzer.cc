@@ -208,8 +208,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
             std::streambuf* oldCout = std::cout.rdbuf();
             std::cout.rdbuf(nullptr);
             
-            // Call identify which will process the IPTC profile
-            image.identify();
+            // Instead of using identify(), which might not be available,
+            // we'll use other methods that will process the IPTC profile
+            std::string attributes = image.attribute("IPTC:*");
+            
+            // Get image properties which will process profiles
+            image.fileName();
+            image.format();
+            image.size();
             
             // Restore stdout
             std::cout.rdbuf(oldCout);

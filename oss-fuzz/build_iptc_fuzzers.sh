@@ -20,6 +20,8 @@ clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
     -I../Magick++/lib \
     -I../MagickCore \
     -I../MagickWand \
+    -DMAGICKCORE_QUANTUM_DEPTH=16 \
+    -DMAGICKCORE_HDRI_ENABLE=1 \
     iptc_profile_fuzzer.cc \
     -o iptc_profile_fuzzer \
     -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/lib/.libs \
@@ -31,6 +33,8 @@ clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
     -I../Magick++/lib \
     -I../MagickCore \
     -I../MagickWand \
+    -DMAGICKCORE_QUANTUM_DEPTH=16 \
+    -DMAGICKCORE_HDRI_ENABLE=1 \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_profile_advanced_fuzzer \
     -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/lib/.libs \
@@ -42,6 +46,8 @@ clang++ -g -O1 -DBUILD_MAIN \
     -I../Magick++/lib \
     -I../MagickCore \
     -I../MagickWand \
+    -DMAGICKCORE_QUANTUM_DEPTH=16 \
+    -DMAGICKCORE_HDRI_ENABLE=1 \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_corpus_generator \
     -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/lib/.libs \
