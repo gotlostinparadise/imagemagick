@@ -14,40 +14,46 @@ mkdir -p "$FINDINGS_DIR"
 # Build the fuzzers
 echo "Building IPTC profile fuzzers..."
 
-# Get ImageMagick compilation flags from pkg-config
-MAGICK_CFLAGS=$(pkg-config --cflags Magick++)
-MAGICK_LIBS=$(pkg-config --libs Magick++)
-
-echo "Using ImageMagick flags: $MAGICK_CFLAGS $MAGICK_LIBS"
-
 # Basic fuzzer
 clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
-    $MAGICK_CFLAGS \
+    -I.. \
+    -I../Magick++ \
+    -I../MagickCore \
+    -I../MagickWand \
     iptc_profile_fuzzer.cc \
     -o iptc_profile_fuzzer \
-    $MAGICK_LIBS -lz -lm -lpthread
+    -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/lib/.libs \
+    -lMagickWand-7.Q16HDRI -lMagickCore-7.Q16HDRI -lMagick++-7.Q16HDRI -lz -lm -lpthread
 
 # Advanced fuzzer
 clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
-    $MAGICK_CFLAGS \
+    -I.. \
+    -I../Magick++ \
+    -I../MagickCore \
+    -I../MagickWand \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_profile_advanced_fuzzer \
-    $MAGICK_LIBS -lz -lm -lpthread
+    -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/lib/.libs \
+    -lMagickWand-7.Q16HDRI -lMagickCore-7.Q16HDRI -lMagick++-7.Q16HDRI -lz -lm -lpthread
 
 # Build the corpus generator
 clang++ -g -O1 -DBUILD_MAIN \
-    $MAGICK_CFLAGS \
+    -I.. \
+    -I../Magick++ \
+    -I../MagickCore \
+    -I../MagickWand \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_corpus_generator \
-    $MAGICK_LIBS -lz -lm -lpthread
+    -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/lib/.libs \
+    -lMagickWand-7.Q16HDRI -lMagickCore-7.Q16HDRI -lMagick++-7.Q16HDRI -lz -lm -lpthread
 
 echo "Generating initial corpus..."
-./iptc_corpus_generator "$CORPUS_DIR"
+LD_LIBRARY_PATH=../MagickWand/.libs:../MagickCore/.libs:../Magick++/lib/.libs ./iptc_corpus_generator "$CORPUS_DIR"
 
 echo "Running basic IPTC profile fuzzer..."
-./iptc_profile_fuzzer -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
+LD_LIBRARY_PATH=../MagickWand/.libs:../MagickCore/.libs:../Magick++/lib/.libs ./iptc_profile_fuzzer -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
 
 echo "Running advanced IPTC profile fuzzer..."
-./iptc_profile_advanced_fuzzer -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
+LD_LIBRARY_PATH=../MagickWand/.libs:../MagickCore/.libs:../Magick++/lib/.libs ./iptc_profile_advanced_fuzzer -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
 
 echo "Fuzzing complete. Check $FINDINGS_DIR for any crashes." 
