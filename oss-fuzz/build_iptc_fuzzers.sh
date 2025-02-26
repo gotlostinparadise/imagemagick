@@ -17,7 +17,7 @@ echo "Building IPTC profile fuzzers..."
 # Basic fuzzer
 clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
     -I.. \
-    -I../Magick++ \
+    -I../Magick++/lib \
     -I../MagickCore \
     -I../MagickWand \
     iptc_profile_fuzzer.cc \
@@ -28,7 +28,7 @@ clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
 # Advanced fuzzer
 clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
     -I.. \
-    -I../Magick++ \
+    -I../Magick++/lib \
     -I../MagickCore \
     -I../MagickWand \
     iptc_profile_advanced_fuzzer.cc \
@@ -39,7 +39,7 @@ clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
 # Build the corpus generator
 clang++ -g -O1 -DBUILD_MAIN \
     -I.. \
-    -I../Magick++ \
+    -I../Magick++/lib \
     -I../MagickCore \
     -I../MagickWand \
     iptc_profile_advanced_fuzzer.cc \
