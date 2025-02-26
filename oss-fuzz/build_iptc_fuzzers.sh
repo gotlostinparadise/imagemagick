@@ -14,38 +14,32 @@ mkdir -p "$FINDINGS_DIR"
 # Build the fuzzers
 echo "Building IPTC profile fuzzers..."
 
+# Get ImageMagick compilation flags from pkg-config
+MAGICK_CFLAGS=$(pkg-config --cflags Magick++)
+MAGICK_LIBS=$(pkg-config --libs Magick++)
+
+echo "Using ImageMagick flags: $MAGICK_CFLAGS $MAGICK_LIBS"
+
 # Basic fuzzer
 clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
-    -I.. \
-    -I../Magick++ \
-    -I../MagickCore \
-    -I../MagickWand \
+    $MAGICK_CFLAGS \
     iptc_profile_fuzzer.cc \
     -o iptc_profile_fuzzer \
-    -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/.libs \
-    -lMagickWand -lMagickCore -lMagick++-7.Q16HDRI -lz -lm -lpthread
+    $MAGICK_LIBS -lz -lm -lpthread
 
 # Advanced fuzzer
 clang++ -g -O1 -fsanitize=fuzzer,address,undefined \
-    -I.. \
-    -I../Magick++ \
-    -I../MagickCore \
-    -I../MagickWand \
+    $MAGICK_CFLAGS \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_profile_advanced_fuzzer \
-    -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/.libs \
-    -lMagickWand -lMagickCore -lMagick++-7.Q16HDRI -lz -lm -lpthread
+    $MAGICK_LIBS -lz -lm -lpthread
 
 # Build the corpus generator
 clang++ -g -O1 -DBUILD_MAIN \
-    -I.. \
-    -I../Magick++ \
-    -I../MagickCore \
-    -I../MagickWand \
+    $MAGICK_CFLAGS \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_corpus_generator \
-    -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/.libs \
-    -lMagickWand -lMagickCore -lMagick++-7.Q16HDRI -lz -lm -lpthread
+    $MAGICK_LIBS -lz -lm -lpthread
 
 echo "Generating initial corpus..."
 ./iptc_corpus_generator "$CORPUS_DIR"
