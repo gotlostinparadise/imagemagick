@@ -53,13 +53,43 @@ clang++ -g -O1 -DBUILD_MAIN \
     -L../MagickWand/.libs -L../MagickCore/.libs -L../Magick++/lib/.libs \
     -lMagickWand-7.Q16HDRI -lMagickCore-7.Q16HDRI -lMagick++-7.Q16HDRI -lz -lm -lpthread
 
+# Create wrapper scripts
+echo "Creating wrapper scripts..."
+
+# Wrapper for corpus generator
+cat > run_corpus_generator.sh << 'EOF'
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export LD_LIBRARY_PATH="$SCRIPT_DIR/../MagickWand/.libs:$SCRIPT_DIR/../MagickCore/.libs:$SCRIPT_DIR/../Magick++/lib/.libs"
+"$SCRIPT_DIR/iptc_corpus_generator" "$@"
+EOF
+chmod +x run_corpus_generator.sh
+
+# Wrapper for basic fuzzer
+cat > run_basic_fuzzer.sh << 'EOF'
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export LD_LIBRARY_PATH="$SCRIPT_DIR/../MagickWand/.libs:$SCRIPT_DIR/../MagickCore/.libs:$SCRIPT_DIR/../Magick++/lib/.libs"
+"$SCRIPT_DIR/iptc_profile_fuzzer" "$@"
+EOF
+chmod +x run_basic_fuzzer.sh
+
+# Wrapper for advanced fuzzer
+cat > run_advanced_fuzzer.sh << 'EOF'
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export LD_LIBRARY_PATH="$SCRIPT_DIR/../MagickWand/.libs:$SCRIPT_DIR/../MagickCore/.libs:$SCRIPT_DIR/../Magick++/lib/.libs"
+"$SCRIPT_DIR/iptc_profile_advanced_fuzzer" "$@"
+EOF
+chmod +x run_advanced_fuzzer.sh
+
 echo "Generating initial corpus..."
-LD_LIBRARY_PATH=../MagickWand/.libs:../MagickCore/.libs:../Magick++/lib/.libs ./iptc_corpus_generator "$CORPUS_DIR"
+./run_corpus_generator.sh "$CORPUS_DIR"
 
 echo "Running basic IPTC profile fuzzer..."
-LD_LIBRARY_PATH=../MagickWand/.libs:../MagickCore/.libs:../Magick++/lib/.libs ./iptc_profile_fuzzer -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
+./run_basic_fuzzer.sh -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
 
 echo "Running advanced IPTC profile fuzzer..."
-LD_LIBRARY_PATH=../MagickWand/.libs:../MagickCore/.libs:../Magick++/lib/.libs ./iptc_profile_advanced_fuzzer -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
+./run_advanced_fuzzer.sh -max_len=65536 -dict=dictionaries/iptc.dict "$CORPUS_DIR" "$FINDINGS_DIR" -jobs=4 -workers=4
 
 echo "Fuzzing complete. Check $FINDINGS_DIR for any crashes." 
