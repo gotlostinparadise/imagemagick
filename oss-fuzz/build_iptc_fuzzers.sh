@@ -44,23 +44,27 @@ echo "Using ImageMagick include path: $MAGICK_INCLUDE_PATH"
 echo "Using ImageMagick lib path: $MAGICK_LIB_PATH"
 echo "Using ImageMagick libs: $MAGICK_LIBS"
 
+# Add necessary defines for ImageMagick 6
+# These address the warnings about MAGICKCORE_QUANTUM_DEPTH and MAGICKCORE_HDRI_ENABLE
+MAGICK_DEFINES="-DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0"
+
 # Build the fuzzers
 echo "Building IPTC profile fuzzers..."
 
 # Basic fuzzer
-clang++ -g -O1 -fsanitize=fuzzer,address,undefined $MAGICK_INCLUDE_PATH \
+clang++ -g -O1 -fsanitize=fuzzer,address,undefined $MAGICK_INCLUDE_PATH $MAGICK_DEFINES \
     iptc_profile_fuzzer.cc \
     -o iptc_profile_fuzzer \
     $MAGICK_LIB_PATH $MAGICK_LIBS -lz -lm -lpthread
 
 # Advanced fuzzer
-clang++ -g -O1 -fsanitize=fuzzer,address,undefined $MAGICK_INCLUDE_PATH \
+clang++ -g -O1 -fsanitize=fuzzer,address,undefined $MAGICK_INCLUDE_PATH $MAGICK_DEFINES \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_profile_advanced_fuzzer \
     $MAGICK_LIB_PATH $MAGICK_LIBS -lz -lm -lpthread
 
 # Build the corpus generator
-clang++ -g -O1 -DBUILD_MAIN $MAGICK_INCLUDE_PATH \
+clang++ -g -O1 -DBUILD_MAIN $MAGICK_INCLUDE_PATH $MAGICK_DEFINES \
     iptc_profile_advanced_fuzzer.cc \
     -o iptc_corpus_generator \
     $MAGICK_LIB_PATH $MAGICK_LIBS -lz -lm -lpthread

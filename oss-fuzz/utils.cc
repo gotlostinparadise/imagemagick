@@ -16,7 +16,8 @@
 
 #include <Magick++/Functions.h>
 #include <Magick++/ResourceLimits.h>
-#include <Magick++/SecurityPolicy.h>
+// SecurityPolicy is not available in ImageMagick 6
+// #include <Magick++/SecurityPolicy.h>
 
 #ifndef FUZZ_MAX_SIZE
 #define FUZZ_MAX_SIZE 2048
@@ -40,9 +41,10 @@ public:
     (void) putenv(const_cast<char *>("JSIMD_FORCENONE=1"));
 
     Magick::InitializeMagick((const char *) NULL);
-    Magick::SecurityPolicy::anonymousCacheMemoryMap();
-    Magick::SecurityPolicy::anonymousSystemMemoryMap();
-    Magick::SecurityPolicy::maxMemoryRequest(128000000);
+    // SecurityPolicy methods are not available in ImageMagick 6
+    // Magick::SecurityPolicy::anonymousCacheMemoryMap();
+    // Magick::SecurityPolicy::anonymousSystemMemoryMap();
+    // Magick::SecurityPolicy::maxMemoryRequest(128000000);
     Magick::ResourceLimits::memory(1000000000);
     Magick::ResourceLimits::map(500000000);
     Magick::ResourceLimits::width(FUZZ_MAX_SIZE);
