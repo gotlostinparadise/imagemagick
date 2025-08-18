@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -78,12 +78,12 @@ jobs:
 
     steps:
     - name: Clone ImageMagick
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         path: ImageMagick
 
     - name: Clone ImageMagick-Windows
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ImageMagick/ImageMagick-Windows
         path: ImageMagick-Windows
@@ -208,12 +208,12 @@ jobs:
 
     steps:
     - name: Clone ImageMagick
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         path: ImageMagick
 
     - name: Clone ImageMagick-Windows
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ImageMagick/ImageMagick-Windows
         path: ImageMagick-Windows
@@ -281,12 +281,12 @@ jobs:
 
     steps:
     - name: Clone ImageMagick
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         path: ImageMagick
 
     - name: Clone ImageMagick-Windows
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ImageMagick/ImageMagick-Windows
         path: ImageMagick-Windows
