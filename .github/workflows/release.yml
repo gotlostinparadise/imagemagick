@@ -44,7 +44,7 @@ jobs:
         apt install libheif-dev -y
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
       # Avoid fatal: detected dubious ownership in repository at '/__w/ImageMagick/ImageMagick'
       # Possible workaround: https://github.com/actions/runner/issues/2033#issuecomment-1598547465
@@ -116,12 +116,12 @@ jobs:
 
     steps:
     - name: Clone ImageMagick
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         path: ImageMagick
 
     - name: Clone ImageMagick-Windows
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ImageMagick/ImageMagick-Windows
         path: ImageMagick-Windows
@@ -168,7 +168,7 @@ jobs:
 
     steps:
     - name: Clone ImageMagick
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         path: ImageMagick
 
@@ -206,7 +206,7 @@ jobs:
 
     steps:
     - name: Clone ImageMagick-Windows
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ImageMagick/ImageMagick-Windows
         path: ImageMagick-Windows
